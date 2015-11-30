@@ -1,0 +1,27 @@
+def update(simulation, generations)
+  generations.each do |generation|
+    system "./update_simulation #{simulation} #{generation}"
+  end
+end
+
+def query(simulation, generation)
+  `./query_simulation #{simulation} #{generation}`.lines.sort
+end
+
+task "init" do
+  system "trash life.db"
+  system "sqlite3 life.db <schema.sql"
+  system "sqlite3 life.db <fixtures.sql"
+end
+
+task "test" => ["init"] do
+  update("line", 1..2)
+  raise "Stayed the same" if query("line", 0) == query("line", 1)
+  raise "Not back to original status" if query("line", 0) != query("line", 2)
+
+  update("glider", 1..4)
+
+  glider0 = `echo "select x+1 as x, y+1 as y from life where simulation = 'glider' and generation = 0;" | sqlite3 life.db`.lines.sort
+  glider4 = `echo "select x, y from life where simulation = 'glider' and generation = 4;" | sqlite3 life.db`.lines.sort
+  raise "Did not glide" unless glider0 == glider4
+end
