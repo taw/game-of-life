@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+
+simulation = ARGV[0]
+generation = ARGV[1].to_i
+
+sql = "select x, y from life where simulation = '%s' and generation = %d;" % [simulation, generation]
+
+IO.popen("sqlite3 life.db", "w") do |fh|
+  fh.puts sql
+end

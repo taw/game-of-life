@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+
+simulation = ARGV[0]
+generation = ARGV[1].to_i
+
+sql = "insert into life select * from alive_next_generation where simulation = '%s' and generation = %d;" % [simulation, generation]
+
+IO.popen("sqlite3 life.db", "w") do |fh|
+  fh.puts sql
+end
